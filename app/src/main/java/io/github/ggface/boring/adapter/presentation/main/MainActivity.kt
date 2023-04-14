@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import io.github.ggface.boring.adapter.databinding.ActivityMainBinding
+import io.github.ggface.boring.adapter.presentation.adapter.ktx.BoringAdapter
+import io.github.ggface.boring.adapter.presentation.adapter.ktx.BoringSimpleDiffCallback
 import io.github.ggface.boring.adapter.presentation.adapter.legacy.RendererRecyclerAdapter
 import io.github.ggface.boring.adapter.presentation.adapter.legacy.SimpleDiffCallback
 
@@ -16,6 +18,10 @@ class MainActivity : AppCompatActivity() {
 
     private val topAdapter = RendererRecyclerAdapter()
     private val topDiffCallback = SimpleDiffCallback()
+
+    private val bottomAdapter = BoringAdapter()
+    private val bottomDiffCallback = BoringSimpleDiffCallback()
+
     private val binding by lazy(LazyThreadSafetyMode.NONE) {
         ActivityMainBinding.inflate(layoutInflater)
     }
@@ -24,6 +30,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         initTopList()
+        initBottomList()
     }
 
     private fun initTopList() {
@@ -38,6 +45,20 @@ class MainActivity : AppCompatActivity() {
             ExampleLegacyRendererView.Model(it.toString())
         }
         topAdapter.setItems(modelsList, topDiffCallback)
+    }
+
+    private fun initBottomList() {
+        bottomAdapter.registerRenderer(
+            ExampleBoringRendererView { productId ->
+                highlightText(productId)
+            }
+        )
+        binding.bottomRecyclerView.adapter = bottomAdapter
+
+        val modelsList = (0..9).map {
+            ExampleBoringRendererView.Model(it.toString())
+        }
+        bottomAdapter.setItems(modelsList, bottomDiffCallback)
     }
 
     private fun highlightText(text: String) = Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
